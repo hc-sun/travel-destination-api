@@ -12,3 +12,22 @@ services:
       - ./app:/app
     command: >
       sh -c "python manage.py runserver 0.0.0.0:8000"
+    environment:
+      - DB_HOST=db
+      - DB_NAME=apidb
+      - DB_USER=apiuser
+      - DB_PASS=apipwd
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - dev-db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=apidb
+      - POSTGRES_USER=apiuser
+      - POSTGRES_PASSWORD=apipwd
+
+volumes:
+  dev-db-data:
