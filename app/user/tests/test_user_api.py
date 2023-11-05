@@ -7,10 +7,12 @@ from rest_framework.test import APIClient
 
 CREATE_USER_URL = reverse('user:create')
 
+
 def create_user(**params):
     return get_user_model().objects.create_user(**params)
 
-def PublicUserApiTests(TestCase):
+
+class PublicUserApiTests(TestCase):
     """Test the users API (public)"""
 
     def setUp(self):
@@ -29,7 +31,7 @@ def PublicUserApiTests(TestCase):
         self.assertTrue(user.check_password(payload['password']))
         # make sure password is not returned in the response
         self.assertNotIn('password', res.data)
-    
+
     def test_user_exists(self):
         """Test creating a user that already exists fails"""
         payload = {
@@ -40,7 +42,7 @@ def PublicUserApiTests(TestCase):
         create_user(**payload)
         res = self.client.post(CREATE_USER_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-    
+
     def test_password_too_short(self):
         """Test that the password must be more than 5 characters"""
         payload = {
