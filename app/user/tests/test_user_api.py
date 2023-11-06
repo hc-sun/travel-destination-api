@@ -10,7 +10,6 @@ TOKEN_URL = reverse('user:token')
 UPDATE_USER_URL = reverse('user:update')
 
 
-
 def create_user(**params):
     return get_user_model().objects.create_user(**params)
 
@@ -103,9 +102,9 @@ class PrivateUserApiTests(TestCase):
 
     def setUp(self):
         self.user = create_user(
-            email = 'test@example.com',
-            password = 'testpass',
-            name = 'Test Name'
+            email='test@example.com',
+            password='testpass',
+            name='Test Name'
         )
         self.client = APIClient()
         # force authentication
