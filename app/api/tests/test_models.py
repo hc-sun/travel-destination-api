@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
+from api import models
 
 
 class ModelTest(TestCase):
@@ -37,3 +38,19 @@ class ModelTest(TestCase):
         self.assertTrue(user.check_password("admin123"))
         self.assertTrue(user.is_superuser)
         self.assertTrue(user.is_staff)
+
+    def test_create_destination(self):
+        '''Test creating a destination'''
+        uesr = get_user_model().objects.create_user(
+            email="test@example.com",
+            password="test123"
+        )
+        destination = models.Destination.objects.create(
+            user=uesr,
+            name="test",
+            description="test description",
+            country="test country",
+            city="test city",
+            rating=4.5
+        )
+        self.assertEqual(destination.name, "test")
