@@ -4,6 +4,7 @@ Database models for the API
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, \
     BaseUserManager, PermissionsMixin
+from django.conf import settings
 
 
 class UserManager(BaseUserManager):
@@ -51,3 +52,23 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()  # Assign the UserManager to the objects attribute
 
     USERNAME_FIELD = 'email'
+
+
+class Destination(models.Model):
+    '''
+    Destination object
+    '''
+    # user field is a foreign key to the user model
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        # If the user is deleted, delete the destination
+        on_delete=models.CASCADE
+    )
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    country = models.CharField(max_length=255)
+    city = models.CharField(max_length=255)
+    rating = models.DecimalField(max_digits=2, decimal_places=1)
+
+    def __str__(self):
+        return self.name
