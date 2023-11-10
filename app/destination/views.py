@@ -7,7 +7,7 @@ from destination import serializers
 
 class DestinationViewSet(viewsets.ModelViewSet):
     """Manage destinations in the database"""
-    serializer_class = serializers.DestinationSerializer
+    serializer_class = serializers.DestinationDetailSerializer
     # query the database for all destinations
     queryset = Destination.objects.all()
     authentication_classes = (TokenAuthentication,)
@@ -17,3 +17,9 @@ class DestinationViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """Return objects for the current authenticated user only"""
         return self.queryset.filter(user=self.request.user).order_by('-id')
+
+    def get_serializer_class(self):
+        """Return appropriate serializer class"""
+        if self.action == 'list':
+            return serializers.DestinationSerializer
+        return self.serializer_class

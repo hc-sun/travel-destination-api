@@ -10,9 +10,14 @@ class DestinationSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'name',
-            'description',
             'country',
             'city',
             'rating',
         )
         read_only_fields = ('id',)
+
+
+class DestinationDetailSerializer(DestinationSerializer):
+    """Serializer for destination detail objects"""
+    class Meta(DestinationSerializer.Meta):
+        fields = DestinationSerializer.Meta.fields + ('description',)

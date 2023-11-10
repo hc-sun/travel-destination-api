@@ -4,14 +4,17 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 from api.models import Destination
-from destination.serializers import DestinationSerializer, DestinationDetailSerializer
+from destination.serializers import DestinationSerializer, \
+    DestinationDetailSerializer
 
 
 DESTINATION_URL = reverse('destination:destination-list')
 
+
 def detail_url(destination_id):
     """generate destination detail url"""
     return reverse('destination:destination-detail', args=[destination_id])
+
 
 def create_destination(user, **params):
     """Helper function to create destination"""
