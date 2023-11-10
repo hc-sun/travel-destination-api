@@ -26,4 +26,5 @@ urlpatterns = [
         name='docs'
     ),
     path('api/user/', include('user.urls')),
+    path('api/destination/', include('destination.urls')),
 ]
