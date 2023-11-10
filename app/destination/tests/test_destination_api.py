@@ -4,11 +4,14 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 from api.models import Destination
-from destination.serializers import DestinationSerializer
+from destination.serializers import DestinationSerializer, DestinationDetailSerializer
 
 
 DESTINATION_URL = reverse('destination:destination-list')
 
+def detail_url(destination_id):
+    """generate destination detail url"""
+    return reverse('destination:destination-detail', args=[destination_id])
 
 def create_destination(user, **params):
     """Helper function to create destination"""
@@ -65,7 +68,7 @@ class PrivateDestinationApiTests(TestCase):
     def test_destinations_authenticated_user(self):
         '''Test that destinations are limited to authenticated users'''
 
-        # create a destination for the authenticated user
+        # create a destination for an unauthenticated user
         user2 = get_user_model().objects.create_user(
             'test2@example.com',
             'testpass'
@@ -79,4 +82,12 @@ class PrivateDestinationApiTests(TestCase):
         serializer = DestinationSerializer(destinations, many=True)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data), 1)
+        self.assertEqual(res.data, serializer.data)
+
+    def test_destination_detail_view(self):
+        '''Test viewing a destination detail'''
+        destination = create_destination(user=self.user)
+        url = detail_url(destination.id)
+        res = self.client.get(url)
+        serializer = DestinationDetailSerializer(destination)
         self.assertEqual(res.data, serializer.data)
