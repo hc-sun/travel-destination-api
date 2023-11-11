@@ -94,3 +94,20 @@ class PrivateDestinationApiTests(TestCase):
         res = self.client.get(url)
         serializer = DestinationDetailSerializer(destination)
         self.assertEqual(res.data, serializer.data)
+
+    def test_create_basic_destination(self):
+        '''Test creating destination'''
+        payload = {
+            'name': 'Test Destination',
+            'country': 'Test country',
+            'city': 'Test city',
+            'rating': 4.5,
+        }
+        res = self.client.post(DESTINATION_URL, payload)
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        destination = Destination.objects.get(id=res.data['id'])
+        # compare the payload values to the destination object
+        for k, v in payload.items():
+            self.assertEqual(v, getattr(destination, k))
+        # check destination object was created by the correct user
+        self.assertEqual(destination.user, self.user)
