@@ -130,3 +130,25 @@ class PrivateDestinationApiTests(TestCase):
         self.assertEqual(destination.rating, payload['rating'])
         # check update destination was created by the same user
         self.assertEqual(destination.user, self.user)
+
+    def test_update_full_destination(self):
+        '''Test updating a destination with all fields'''
+        destination = create_destination(user=self.user)
+        payload = {
+            'name': 'Updated name',
+            'description': 'Updated description',
+            'country': 'Updated country',
+            'city': 'Updated city',
+            'rating': 5.0,
+        }
+        url = detail_url(destination.id)
+        # put method used to update all fields
+        res = self.client.put(url, payload)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        # refresh the destination object from the database
+        destination.refresh_from_db()
+        # check the destination object was updated
+        for k, v in payload.items():
+            self.assertEqual(v, getattr(destination, k))
+        # check update destination was created by the same user
+        self.assertEqual(destination.user, self.user)
