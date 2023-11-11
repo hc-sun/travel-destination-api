@@ -23,3 +23,7 @@ class DestinationViewSet(viewsets.ModelViewSet):
         if self.action == 'list':
             return serializers.DestinationSerializer
         return self.serializer_class
+
+    def perform_create(self, serializer):
+        """Create a new destination"""
+        serializer.save(user=self.request.user)
