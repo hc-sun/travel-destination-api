@@ -152,3 +152,15 @@ class PrivateDestinationApiTests(TestCase):
             self.assertEqual(v, getattr(destination, k))
         # check update destination was created by the same user
         self.assertEqual(destination.user, self.user)
+
+    def test_delete_destination(self):
+        '''Test deleting a destination'''
+        destination = create_destination(user=self.user)
+        url = detail_url(destination.id)
+        # delete method used to delete a destination
+        res = self.client.delete(url)
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+        # check the destination object was deleted
+        object_exists = Destination.objects.filter(id=destination.id).exists()
+        self.assertFalse(object_exists)
+        self.assertEqual(destination.user, self.user)
