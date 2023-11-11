@@ -31,6 +31,15 @@ def create_destination(user, **params):
     return Destination.objects.create(user=user, **destination_values)
 
 
+def sample_user(**params):
+    """Create a sample user"""
+    return get_user_model().objects.create_user(
+        email='test@example.com',
+        password='testpass',
+        **params
+    )
+
+
 class PublicDestinationApiTests(TestCase):
     """Test the publicly available destination API"""
 
@@ -49,10 +58,7 @@ class PrivateDestinationApiTests(TestCase):
 
     def setUp(self):
         self.client = APIClient()
-        self.user = get_user_model().objects.create_user(
-            'test@example.com',
-            'testpass'
-        )
+        self.user = sample_user()
         self.client.force_authenticate(self.user)
 
     def test_retrieve_destinations(self):
@@ -110,4 +116,17 @@ class PrivateDestinationApiTests(TestCase):
         for k, v in payload.items():
             self.assertEqual(v, getattr(destination, k))
         # check destination object was created by the correct user
+        self.assertEqual(destination.user, self.user)
+
+    def test_update_destination(self):
+        '''Test updating a destination'''
+        destination = create_destination(user=self.user)
+        payload = {'rating': 5.0}
+        url = detail_url(destination.id)
+        res = self.client.patch(url, payload)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        destination.refresh_from_db()
+        # check the destination object was updated
+        self.assertEqual(destination.rating, payload['rating'])
+        # check update destination was created by the same user
         self.assertEqual(destination.user, self.user)
