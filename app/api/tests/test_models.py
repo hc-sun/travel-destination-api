@@ -54,3 +54,12 @@ class ModelTest(TestCase):
             rating=4.5
         )
         self.assertEqual(destination.name, "test")
+
+    def test_create_tag(self):
+        '''Test creating a tag'''
+        user = get_user_model().objects.create_user(
+            email="test@example.com",
+            password="test123"
+        )
+        tag = models.Tag.objects.create(user=user, name="tag")
+        self.assertEqual(tag.name, str(tag))
