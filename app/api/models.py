@@ -69,6 +69,24 @@ class Destination(models.Model):
     country = models.CharField(max_length=255)
     city = models.CharField(max_length=255)
     rating = models.DecimalField(max_digits=2, decimal_places=1)
+    # multiple tags can be associated with multiple destinations
+    tags = models.ManyToManyField('Tag')
+
+    def __str__(self):
+        return self.name
+
+
+class Tag(models.Model):
+    '''
+    Tag object
+    '''
+    # foreignkey each tag is associated with only one user
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE
+    )
+    name = models.CharField(max_length=255)
+    # return the name of the tag when convert object to a string
 
     def __str__(self):
         return self.name
