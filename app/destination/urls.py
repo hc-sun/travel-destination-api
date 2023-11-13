@@ -8,6 +8,7 @@ router = DefaultRouter()
 # register the viewset with the router
 # it will automatically generate the urls for viewset
 router.register('destinations', views.DestinationViewSet)
+router.register('tags', views.TagViewSet)
 urlpatterns = [
     path('', include(router.urls))
 ]

@@ -27,7 +27,10 @@ class PrivateTagApiTests(TestCase):
 
     def setUp(self):
         self.client = APIClient()
-        self.user = get_user_model().objects.create_user(email='test@example.com', password='testpass')
+        self.user = get_user_model().objects.create_user(
+            email='test@example.com',
+            password='testpass'
+            )
         self.client.force_authenticate(self.user)
 
     def test_get_tags(self):
@@ -44,13 +47,17 @@ class PrivateTagApiTests(TestCase):
     def test_tag_authenticated_user(self):
         """Test that tags returned are for the authenticated user"""
 
-        user = get_user_model().objects.create_user('test@example.com', 'testpass')
-        user2 = get_user_model().objects.create_user(email='test2@example.com', password='testpass')
-        Tag.objects.create(user=user, name='Test tag')
-        tag = Tag.objects.create(user=user2, name='Test tag2')
+        user2 = get_user_model().objects.create_user(
+            email='test2@example.com',
+            password='testpass'
+            )
+        Tag.objects.create(user=user2, name='Test tag2')
+
+        tag = Tag.objects.create(user=self.user, name='Test tag')
         res = self.client.get(TAG_URL)
+
         # user2 is not authenticated
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data), 1)
         self.assertEqual(res.data[0]['name'], tag.name)
-        self.assertEqual(res.data[0]['user'], tag.user_id)
+        self.assertEqual(res.data[0]['id'], tag.id)
