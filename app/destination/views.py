@@ -32,7 +32,9 @@ class DestinationViewSet(viewsets.ModelViewSet):
 # viewsets.GenericViewSet allows to use the mixins
 # which allows GET and PATCH
 class TagViewSet(viewsets.GenericViewSet,
-                 mixins.ListModelMixin, mixins.UpdateModelMixin):
+                 mixins.ListModelMixin,
+                 mixins.UpdateModelMixin,
+                 mixins.DestroyModelMixin,):
     """Manage tags in the database"""
     serializer_class = serializers.TagSerializer
     # query the database for all tags
