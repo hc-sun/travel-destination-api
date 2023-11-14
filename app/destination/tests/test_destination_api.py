@@ -3,7 +3,7 @@ from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
-from api.models import Destination
+from api.models import Destination, Tag
 from destination.serializers import DestinationSerializer, \
     DestinationDetailSerializer
 
@@ -164,3 +164,48 @@ class PrivateDestinationApiTests(TestCase):
         object_exists = Destination.objects.filter(id=destination.id).exists()
         self.assertFalse(object_exists)
         self.assertEqual(destination.user, self.user)
+
+    def test_create_destination_tag(self):
+        '''Test creating a destination with tags'''
+        tag1 = Tag.objects.create(user=self.user, name='Tag 1')
+        tag2 = Tag.objects.create(user=self.user, name='Tag 2')
+        payload = {
+            'name': 'Test Destination',
+            'country': 'Test country',
+            'city': 'Test city',
+            'rating': 4.5,
+            'tags': [tag1.id, tag2.id]
+        }
+        res = self.client.post(DESTINATION_URL, payload)
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        destination = Destination.objects.get(id=res.data['id'])
+        tags = destination.tags.all()
+        self.assertEqual(tags.count(), 2)
+        self.assertIn(tag1, tags)
+        self.assertIn(tag2, tags)
+
+    def test_create_destination_no_duplicate_tag(self):
+        '''Test creating a destination with existing tags'''
+        # create a tag with a name
+        tag = Tag.objects.create(user=self.user, name='Tag 1')
+        # create a destination that contains same tag name
+        payload = {
+            'name': 'Test Destination',
+            'country': 'Test country',
+            'city': 'Test city',
+            'rating': 4.5,
+            'tags': ['Tag 1', 'Tag 2']
+        }
+        res = self.client.post(DESTINATION_URL, payload, format='json')
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+        destinations = Destination.objects.filter(user=self.user)
+        # check that only one destination was created by this user
+        self.assertEqual(destinations.count(), 1)
+
+        destination = destinations[0]
+        # check there are 2 tags associated with the destination
+        self.assertEqual(destination.count(), 2)
+
+        # check the tag name is the same as the tag created above
+        self.assertEqual(destination.tags.all()[0].name, tag.name)
