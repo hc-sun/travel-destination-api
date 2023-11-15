@@ -209,3 +209,53 @@ class PrivateDestinationApiTests(TestCase):
         # check the tag name is the same as the tag created above
         self.assertEqual(destination.tags.all()[0].name, tag.name)
         self.assertEqual(destination.tags.all()[1].name, 'Tag 2')
+
+    def test_update_destination_tag(self):
+        ''''Test updating a destination with tags'''
+        destination = create_destination(user=self.user)
+        payload = {
+            'tags': [{'name': 'Tag 1'}, {'name': 'Tag 2'}]
+        }
+        url = detail_url(destination.id)
+        res = self.client.patch(url, payload, format='json')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        destination.refresh_from_db()
+        tags = destination.tags.all()
+        self.assertEqual(len(tags), 2)
+        self.assertEqual(tags[0].name, 'Tag 1')
+        self.assertEqual(tags[1].name, 'Tag 2')
+
+    def test_update_replace_destination_tag(self):
+        '''Test updating a destination with tags'''
+        destination = create_destination(user=self.user)
+        # create a tag with a name
+        tag = Tag.objects.create(user=self.user, name='Tag 1')
+        # add the tag to the destination
+        destination.tags.add(tag)
+        payload = {
+            'tags': [{'name': 'Tag 2'}]
+        }
+        url = detail_url(destination.id)
+        res = self.client.patch(url, payload, format='json')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        destination.refresh_from_db()
+        tags = destination.tags.all()
+        self.assertEqual(len(tags), 1)
+        self.assertEqual(tags[0].name, 'Tag 2')
+
+    def test_update_remove_destination_tags(self):
+        '''Test removing tags from a destination'''
+        destination = create_destination(user=self.user)
+        # create a tag with a name
+        tag = Tag.objects.create(user=self.user, name='Tag 1')
+        # add the tag to the destination
+        destination.tags.add(tag)
+        payload = {
+            'tags': []
+        }
+        url = detail_url(destination.id)
+        res = self.client.patch(url, payload, format='json')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        destination.refresh_from_db()
+        tags = destination.tags.all()
+        self.assertEqual(len(tags), 0)
