@@ -47,6 +47,31 @@ class DestinationSerializer(serializers.ModelSerializer):
 
         return destination
 
+    # instance: existing destination object
+    # validated_data: new data to update the destination object
+    def update(self, instance, validated_data):
+        """Update and return an existing destination"""
+        tags = validated_data.pop('tags', [])
+
+        # if tags is not None
+        # means there are new tags provided in the validated_data
+        if tags is not None:
+            # remove old tags
+            instance.tags.clear()
+            for tag in tags:
+                tag_obj, created = Tag.objects.get_or_create(
+                    user=self.context['request'].user,
+                    name=tag['name']
+                )
+                instance.tags.add(tag_obj)
+
+        for key, value in validated_data.items():
+            # set attribute of instance to value
+            setattr(instance, key, value)
+
+        instance.save()
+        return instance
+
 
 class DestinationDetailSerializer(DestinationSerializer):
     """Serializer for destination detail objects"""
