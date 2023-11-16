@@ -63,3 +63,12 @@ class ModelTest(TestCase):
         )
         tag = models.Tag.objects.create(user=user, name="tag")
         self.assertEqual(tag.name, str(tag))
+
+    def test_create_feature(self):
+        '''Test creating a feature'''
+        user = get_user_model().objects.create_user(
+            email="test@example.com",
+            password="test123"
+        )
+        feature = models.Feature.objects.create(user=user, name="feature")
+        self.assertEqual(feature.name, str(feature))
