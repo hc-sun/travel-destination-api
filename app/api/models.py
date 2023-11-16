@@ -71,6 +71,7 @@ class Destination(models.Model):
     rating = models.DecimalField(max_digits=2, decimal_places=1)
     # multiple tags can be associated with multiple destinations
     tags = models.ManyToManyField('Tag')
+    features = models.ManyToManyField('Feature')
 
     def __str__(self):
         return self.name
@@ -87,6 +88,20 @@ class Tag(models.Model):
     )
     name = models.CharField(max_length=255)
     # return the name of the tag when convert object to a string
+
+    def __str__(self):
+        return self.name
+
+
+class Feature(models.Model):
+    '''
+    Feature object
+    '''
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE
+    )
+    name = models.CharField(max_length=255)
 
     def __str__(self):
         return self.name
