@@ -49,7 +49,8 @@ class TagViewSet(viewsets.GenericViewSet,
 
 
 class FeatureViewSet(viewsets.GenericViewSet,
-                     mixins.ListModelMixin):
+                     mixins.ListModelMixin,
+                     mixins.UpdateModelMixin,):
     """Manage features in the database"""
     serializer_class = serializers.FeatureSerializer
 
