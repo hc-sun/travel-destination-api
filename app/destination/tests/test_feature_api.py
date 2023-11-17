@@ -79,3 +79,11 @@ class PrivateFeatureApiTests(TestCase):
         feature.refresh_from_db()
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(feature.name, payload['name'])
+
+    def test_delete_feature(self):
+        """Test deleting a feature"""
+        feature = Feature.objects.create(user=self.user, name='Test feature')
+        url = detail_url(feature.id)
+        res = self.client.delete(url)
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Feature.objects.count(), 0)
