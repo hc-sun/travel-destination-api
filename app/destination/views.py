@@ -1,7 +1,7 @@
 from rest_framework import viewsets, mixins
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-from api.models import Destination, Tag
+from api.models import Destination, Tag, Feature
 from destination import serializers
 
 
@@ -43,6 +43,23 @@ class TagViewSet(viewsets.GenericViewSet,
     permission_classes = (IsAuthenticated,)
 
     # overwrite the get_queryset method
+    def get_queryset(self):
+        """Return objects for the current authenticated user only"""
+        return self.queryset.filter(user=self.request.user).order_by('-name')
+
+
+class FeatureViewSet(viewsets.GenericViewSet,
+                     mixins.ListModelMixin):
+    """Manage features in the database"""
+    serializer_class = serializers.FeatureSerializer
+
+    # query the database for all features
+    queryset = Feature.objects.all()
+
+    authentication_classes = (TokenAuthentication,)
+    # user must be authenticated to use this API endpoint
+    permission_classes = (IsAuthenticated,)
+
     def get_queryset(self):
         """Return objects for the current authenticated user only"""
         return self.queryset.filter(user=self.request.user).order_by('-name')

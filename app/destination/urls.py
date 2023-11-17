@@ -4,11 +4,17 @@ from destination import views
 
 
 app_name = 'destination'
+
+'''
+register the viewset with the router
+it will automatically generate the urls for viewset
+for example:
+api/destination/ ^destinations/(?P<pk>[^/.]+)/$ [name='destination-detail']
+'''
 router = DefaultRouter()
-# register the viewset with the router
-# it will automatically generate the urls for viewset
 router.register('destinations', views.DestinationViewSet)
 router.register('tags', views.TagViewSet)
+router.register('features', views.FeatureViewSet)
 urlpatterns = [
     path('', include(router.urls))
 ]
