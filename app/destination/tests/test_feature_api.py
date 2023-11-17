@@ -10,6 +10,11 @@ from destination.serializers import FeatureSerializer
 FEATURES_URL = reverse('destination:feature-list')
 
 
+def detail_url(feature_id):
+    """Return feature detail URL"""
+    return reverse('destination:feature-detail', args=[feature_id])
+
+
 class PublicFeatureApiTests(TestCase):
     """Test the publicly available features API"""
 
@@ -64,3 +69,13 @@ class PrivateFeatureApiTests(TestCase):
         self.assertEqual(len(res.data), 1)
         self.assertEqual(res.data[0]['id'], feature.id)
         self.assertEqual(res.data[0]['name'], feature.name)
+
+    def test_update_feature(self):
+        """Test updating a feature"""
+        feature = Feature.objects.create(user=self.user, name='Test feature')
+        payload = {'name': 'New feature name'}
+        url = detail_url(feature.id)
+        res = self.client.patch(url, payload)
+        feature.refresh_from_db()
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(feature.name, payload['name'])
