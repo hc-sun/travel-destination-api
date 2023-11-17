@@ -4,7 +4,7 @@ from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
 from api.models import Feature
-from api.serializers import FeatureSerializer
+from destination.serializers import FeatureSerializer
 
 
 FEATURES_URL = reverse('destination:feature-list')
