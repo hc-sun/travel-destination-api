@@ -3,7 +3,7 @@ from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
-from api.models import Destination, Tag
+from api.models import Destination, Tag, Feature
 from destination.serializers import DestinationSerializer, \
     DestinationDetailSerializer
 
@@ -259,3 +259,50 @@ class PrivateDestinationApiTests(TestCase):
         destination.refresh_from_db()
         tags = destination.tags.all()
         self.assertEqual(len(tags), 0)
+
+    def test_create_destination_feature(self):
+        '''Test creating a destination with features'''
+        payload = {
+            'name': 'Test Destination',
+            'country': 'Test country',
+            'city': 'Test city',
+            'rating': 4.5,
+            'features': [{'name': 'Feature 1'}, {'name': 'Feature 2'}]
+        }
+        res = self.client.post(DESTINATION_URL, payload, format='json')
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        destinations = Destination.objects.filter(user=self.user)
+        self.assertEqual(destinations.count(), 1)
+        destination = destinations[0]
+        self.assertEqual(destination.features.count(), 2)
+        self.assertEqual(destination.features.all()[0].name, 'Feature 1')
+        self.assertEqual(destination.features.all()[1].name, 'Feature 2')
+
+    def test_create_destination_no_duplicate_feature(self):
+        '''Test creating a destination with existing features'''
+
+        # create a feature with a name
+        feature = Feature.objects.create(user=self.user, name='Feature 1')
+
+        # create a destination that contains same feature name
+        payload = {
+            'name': 'Test Destination',
+            'country': 'Test country',
+            'city': 'Test city',
+            'rating': 4.5,
+            'features': [{'name': 'Feature 1'}, {'name': 'Feature 2'}]
+        }
+        res = self.client.post(DESTINATION_URL, payload, format='json')
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+        destinations = Destination.objects.filter(user=self.user)
+        # check that only one destination was created by this user
+        self.assertEqual(destinations.count(), 1)
+
+        destination = destinations[0]
+        # check there are only 2 features created
+        self.assertEqual(destination.features.count(), 2)
+
+        # check the feature name is the same as the feature created above
+        self.assertEqual(destination.features.all()[0].name, feature.name)
+        self.assertEqual(destination.features.all()[1].name, 'Feature 2')
