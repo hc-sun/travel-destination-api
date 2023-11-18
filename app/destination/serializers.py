@@ -76,6 +76,7 @@ class DestinationSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         """Update and return an existing destination"""
         tags = validated_data.pop('tags', [])
+        features = validated_data.pop('features', [])
 
         # if tags is not None
         # means there are new tags provided in the validated_data
@@ -89,6 +90,16 @@ class DestinationSerializer(serializers.ModelSerializer):
                 )
                 instance.tags.add(tag_obj)
 
+        if features is not None:
+            instance.features.clear()
+            for feature in features:
+                feature_obj, created = Feature.objects.get_or_create(
+                    user=self.context['request'].user,
+                    name=feature['name']
+                )
+                instance.features.add(feature_obj)
+
+        # update the other fields
         for key, value in validated_data.items():
             # set attribute of instance to value
             setattr(instance, key, value)
