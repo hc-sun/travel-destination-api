@@ -306,3 +306,59 @@ class PrivateDestinationApiTests(TestCase):
         # check the feature name is the same as the feature created above
         self.assertEqual(destination.features.all()[0].name, feature.name)
         self.assertEqual(destination.features.all()[1].name, 'Feature 2')
+
+    def test_update_destination_feature(self):
+        '''Test updating a destination with features'''
+        destination = create_destination(user=self.user)
+        payload = {
+            'features': [{'name': 'Feature 1'},]
+        }
+        url = detail_url(destination.id)
+        res = self.client.patch(url, payload, format='json')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        destination.refresh_from_db()
+        features = destination.features.all()
+        self.assertEqual(len(features), 2)
+        self.assertEqual(features[0].name, 'Feature 1')
+
+    def test_update_replace_destination_feature(self):
+        '''Test updating a destination with features'''
+        # create a destination
+        destination = create_destination(user=self.user)
+        # create a feature with a name
+        feature = Feature.objects.create(user=self.user, name='Feature 1')
+        # add the feature to the destination
+        destination.features.add(feature)
+
+        # create a new feature
+        payload = {
+            'features': [{'name': 'Feature 2'}]
+        }
+        url = detail_url(destination.id)
+        # only update the new feature
+        res = self.client.patch(url, payload, format='json')
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        destination.refresh_from_db()
+        features = destination.features.all()
+        self.assertEqual(len(features), 1)
+        self.assertEqual(features[0].name, 'Feature 2')
+
+    def test_update_remove_destination_features(self):
+        '''Test removing features from a destination'''
+
+        destination = create_destination(user=self.user)
+        feature = Feature.objects.create(user=self.user, name='Feature 1')
+        destination.features.add(feature)
+
+        # update the feature with an empty list
+        payload = {
+            'features': []
+        }
+        url = detail_url(destination.id)
+        res = self.client.patch(url, payload, format='json')
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        destination.refresh_from_db()
+        features = destination.features.all()
+        self.assertEqual(len(features), 0)
