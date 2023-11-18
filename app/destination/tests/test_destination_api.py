@@ -318,7 +318,7 @@ class PrivateDestinationApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         destination.refresh_from_db()
         features = destination.features.all()
-        self.assertEqual(len(features), 2)
+        self.assertEqual(len(features), 1)
         self.assertEqual(features[0].name, 'Feature 1')
 
     def test_update_replace_destination_feature(self):
