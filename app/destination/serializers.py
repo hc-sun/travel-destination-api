@@ -24,6 +24,7 @@ class DestinationSerializer(serializers.ModelSerializer):
     """Serializer for destination objects"""
 
     tags = TagSerializer(many=True, required=False)
+    features = FeatureSerializer(many=True, required=False)
 
     class Meta:
         model = Destination
@@ -34,25 +35,39 @@ class DestinationSerializer(serializers.ModelSerializer):
             'city',
             'rating',
             'tags',
+            'features',
         )
         read_only_fields = ('id',)
 
     def create(self, validated_data):
         """Create and return a new destination"""
-        # need to remove tags from validated_data first
-        # since it's not in the destination model
-        tags = validated_data.pop('tags', [])
 
-        destination = Destination.objects.create(**validated_data)
         auth_user = self.context['request'].user
+
+        '''
+        need to pop tags and features from validated_data first,
+        because cannot create a destination with
+        direct assignment to a many-to-many field
+        '''
+        tags = validated_data.pop('tags', [])
+        features = validated_data.pop('features', [])
+        destination = Destination.objects.create(**validated_data)
 
         for tag in tags:
             # get_or_create will create a new tag if it doesn't exist
             tag_obj, created = Tag.objects.get_or_create(
+                # assign the tag to the authenticated user
                 user=auth_user,
                 name=tag['name']
                 )
             destination.tags.add(tag_obj)
+
+        for feature in features:
+            feature_obj, created = Feature.objects.get_or_create(
+                user=auth_user,
+                name=feature['name']
+                )
+            destination.features.add(feature_obj)
 
         return destination
 
