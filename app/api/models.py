@@ -5,6 +5,17 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, \
     BaseUserManager, PermissionsMixin
 from django.conf import settings
+import uuid
+import os
+
+
+def destination_image_file_path(instance, file_name):
+    '''
+    Image path for destination
+    '''
+    file_extention = file_name.split('.')[-1]
+    file_name = f'{uuid.uuid4()}.{file_extention}'
+    return os.path.join('uploads/destination/', file_name)
 
 
 class UserManager(BaseUserManager):
@@ -72,6 +83,7 @@ class Destination(models.Model):
     # multiple tags can be associated with multiple destinations
     tags = models.ManyToManyField('Tag')
     features = models.ManyToManyField('Feature')
+    image = models.ImageField(null=True, upload_to=destination_image_file_path)
 
     def __str__(self):
         return self.name
