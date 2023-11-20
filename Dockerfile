@@ -24,7 +24,10 @@ RUN python -m venv /py && \
     adduser \
         --disabled-password \
         --no-create-home \
-        api-user
+        api-user && \
+    chown -R api-user:api-user /app && \
+    chmod -R 755 /app
+
 ENV PATH="/py/bin:$PATH"
 
 USER api-user
