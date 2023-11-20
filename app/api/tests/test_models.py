@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from api import models
+from unittest.mock import patch
 
 
 class ModelTest(TestCase):
@@ -72,3 +73,13 @@ class ModelTest(TestCase):
         )
         feature = models.Feature.objects.create(user=user, name="feature")
         self.assertEqual(feature.name, str(feature))
+
+    @patch('api.models.uuid.uuid4')
+    def test_destination_file_uuid(self, mock_uuid):
+        '''Test that image is saved in the correct location'''
+        uuid = 'test-uuid'
+        mock_uuid.return_value = uuid
+        file_path = models.destination_image_file_path(None, 'myimage.jpg')
+
+        exp_path = f'uploads/destination/{uuid}.jpg'
+        self.assertEqual(file_path, exp_path)
