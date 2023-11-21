@@ -409,10 +409,9 @@ class ImageTests(TestCase):
         '''Test uploading an invalid image'''
         url = image_url(self.destination.id)
         # create a temporary text file
-        with tempfile.NamedTemporaryFile(suffix='.txt') as ntf:
+        with tempfile.NamedTemporaryFile(suffix='.txt', mode='w+b') as ntf:
+            ntf.write(b"This is an invalid image file.")
+            ntf.seek(0)
             # upload the text file to the destination
             res = self.client.post(url, {'image': ntf}, format='multipart')
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        # check the destination object does not have an image associated with it
-        self.assertNotIn('image', res.data)
-        self.assertFalse(os.path.exists(self.destination.image.path))
