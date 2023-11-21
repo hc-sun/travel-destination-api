@@ -112,3 +112,17 @@ class DestinationDetailSerializer(DestinationSerializer):
     """Serializer for destination detail objects"""
     class Meta(DestinationSerializer.Meta):
         fields = DestinationSerializer.Meta.fields + ('description',)
+
+
+class DestinationImageSerializer(serializers.ModelSerializer):
+    """Serializer for uploading images to destinations"""
+
+    class Meta:
+        model = Destination
+        fields = ('id', 'image')
+        read_only_fields = ('id',)
+        extra_kwargs = {
+            'image': {
+                'required': True
+            }
+        }
