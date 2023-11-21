@@ -111,7 +111,7 @@ class DestinationSerializer(serializers.ModelSerializer):
 class DestinationDetailSerializer(DestinationSerializer):
     """Serializer for destination detail objects"""
     class Meta(DestinationSerializer.Meta):
-        fields = DestinationSerializer.Meta.fields + ('description',)
+        fields = DestinationSerializer.Meta.fields + ('description', 'image')
 
 
 class DestinationImageSerializer(serializers.ModelSerializer):
