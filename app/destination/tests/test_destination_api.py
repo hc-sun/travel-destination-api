@@ -6,6 +6,9 @@ from rest_framework.test import APIClient
 from api.models import Destination, Tag, Feature
 from destination.serializers import DestinationSerializer, \
     DestinationDetailSerializer
+import tempfile
+import os
+from PIL import Image
 
 
 DESTINATION_URL = reverse('destination:destination-list')
@@ -15,6 +18,9 @@ def detail_url(destination_id):
     """generate destination detail url"""
     return reverse('destination:destination-detail', args=[destination_id])
 
+def image_url(destination_id):
+    """generate destination image url"""
+    return reverse('destination:destination-upload-image', args=[destination_id])
 
 def create_destination(user, **params):
     """Helper function to create destination"""
@@ -362,3 +368,51 @@ class PrivateDestinationApiTests(TestCase):
         destination.refresh_from_db()
         features = destination.features.all()
         self.assertEqual(len(features), 0)
+
+
+class ImageTests(TestCase):
+    '''Test uploading an image to a destination'''
+
+    def setUp(self):
+        self.client = APIClient()
+        self.user = get_user_model().objects.create_user(
+            email='test@example.com',
+            password='testpass',
+        )
+        self.client.force_authenticate(self.user)
+        self.destination = create_destination(user=self.user)
+
+    # delete the test image after each test
+    def tearDown(self):
+        self.destination.image.delete()
+
+    def test_upload_image_to_destination(self):
+        '''Test uploading an image to a destination'''
+        url = image_url(self.destination.id)
+        # create a temporary image file
+        with tempfile.NamedTemporaryFile(suffix='.jpg') as ntf:
+            # create a 10x10 pixel image
+            img = Image.new('RGB', (10, 10))
+            img.save(ntf, format='JPEG')
+            # move the file pointer back to the start of the file
+            # to avoid uploading an empty file
+            ntf.seek(0)
+            # upload the image file to the destination
+            res = self.client.post(url, {'image': ntf}, format='multipart')
+        self.destination.refresh_from_db()
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        # check the destination object has an image associated with it
+        self.assertIn('image', res.data)
+        self.assertTrue(os.path.exists(self.destination.image.path))
+
+    def test_upload_invalid_image(self):
+        '''Test uploading an invalid image'''
+        url = image_url(self.destination.id)
+        # create a temporary text file
+        with tempfile.NamedTemporaryFile(suffix='.txt') as ntf:
+            # upload the text file to the destination
+            res = self.client.post(url, {'image': ntf}, format='multipart')
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        # check the destination object does not have an image associated with it
+        self.assertNotIn('image', res.data)
+        self.assertFalse(os.path.exists(self.destination.image.path))
