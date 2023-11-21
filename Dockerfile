@@ -25,6 +25,8 @@ RUN python -m venv /py && \
         --disabled-password \
         --no-create-home \
         api-user && \
+    mkdir -p /app/static/media && \
+    mkdir -p /app/static/static && \
     chown -R api-user:api-user /app && \
     chmod -R 755 /app
 

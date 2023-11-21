@@ -130,8 +130,8 @@ USE_TZ = True
 STATIC_URL = '/static/static/'
 MEDIA_URL = '/static/media/'
 
-MEDIA_ROOT = BASE_DIR / 'static/media'
-STATIC_ROOT = BASE_DIR / 'static/static'
+MEDIA_ROOT = '/app/static/media'
+STATIC_ROOT = '/app/static/static'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -141,3 +141,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'api.User'
 
 REST_FRAMEWORK = {'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema'}
+
+SPECTACULAR_SETTINGS = {'COMPONENT_SPLIT_REQUEST': True}
