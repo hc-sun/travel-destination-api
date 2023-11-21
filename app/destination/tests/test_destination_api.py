@@ -18,9 +18,12 @@ def detail_url(destination_id):
     """generate destination detail url"""
     return reverse('destination:destination-detail', args=[destination_id])
 
+
 def image_url(destination_id):
     """generate destination image url"""
-    return reverse('destination:destination-upload-image', args=[destination_id])
+    return reverse('destination:destination-upload-image',
+                   args=[destination_id])
+
 
 def create_destination(user, **params):
     """Helper function to create destination"""
