@@ -398,6 +398,32 @@ class PrivateDestinationApiTests(TestCase):
         self.assertIn(serializer2.data, res.data)
         self.assertNotIn(serializer3.data, res.data)
 
+    def test_filter_destinations_by_features(self):
+        '''Test returning destinations with specific features'''
+
+        destination1 = create_destination(user=self.user, name='Destination 1')
+        destination2 = create_destination(user=self.user, name='Destination 2')
+        destination3 = create_destination(user=self.user, name='Destination 3')
+        feature1 = Feature.objects.create(user=self.user, name='Feature 1')
+        feature2 = Feature.objects.create(user=self.user, name='Feature 2')
+        # add features to destinations1 and destination2
+        destination1.features.add(feature1)
+        destination2.features.add(feature2)
+
+        # filter destinations that have feature1 and feature2
+        res = self.client.get(
+            DESTINATION_URL,
+            {'features': f'{feature1.id},{feature2.id}'}
+        )
+
+        serializer1 = DestinationSerializer(destination1)
+        serializer2 = DestinationSerializer(destination2)
+        serializer3 = DestinationSerializer(destination3)
+
+        self.assertIn(serializer1.data, res.data)
+        self.assertIn(serializer2.data, res.data)
+        self.assertNotIn(serializer3.data, res.data)
+
 
 class ImageTests(TestCase):
     '''Test uploading an image to a destination'''
