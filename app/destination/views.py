@@ -5,6 +5,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from api.models import Destination, Tag, Feature
 from destination import serializers
+from drf_spectacular.utils import OpenApiParameter, \
+    OpenApiTypes, extend_schema, extend_schema_view
 
 
 class DestinationViewSet(viewsets.ModelViewSet):
@@ -15,11 +17,35 @@ class DestinationViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
+    def id_to_ints(self, qs):
+        """Convert comma seperated id from to integer"""
+        return [int(str_id) for str_id in qs.split(',')]
+
     # overwrite the get_queryset method
     def get_queryset(self):
         """Return objects for the current authenticated user only"""
-        return self.queryset.filter(user=self.request.user).order_by('-id')
+        # return self.queryset.filter(user=self.request.user).order_by('-id')
+        tags = self.request.query_params.get('tags')
+        features = self.request.query_params.get('features')
+        queryset = self.queryset
 
+        # if tags or features are provided in the query params
+        if tags:
+            tag_ids = self.id_to_ints(tags)
+            '''
+            django ORM query syntax
+            tags__id__in is used to filter objects
+            where the ID of their related 'tag' objects
+            is in a provided list of IDs
+            '''
+            queryset = self.queryset.filter(tags__id__in=tag_ids)
+        if features:
+            feature_ids = self.id_to_ints(features)
+            queryset = self.queryset.filter(features__id__in=feature_ids)
+
+        return (queryset.filter(user=self.request.user)
+                        .order_by('-id')
+                        .distinct())
     def get_serializer_class(self):
         """Return appropriate serializer class"""
         if self.action == 'list':
