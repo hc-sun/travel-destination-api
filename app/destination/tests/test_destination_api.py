@@ -372,6 +372,32 @@ class PrivateDestinationApiTests(TestCase):
         features = destination.features.all()
         self.assertEqual(len(features), 0)
 
+    def test_filter_destinations_by_tags(self):
+        '''Test returning destinations with specific tags'''
+
+        destination1 = create_destination(user=self.user, name='Destination 1')
+        destination2 = create_destination(user=self.user, name='Destination 2')
+        destination3 = create_destination(user=self.user, name='Destination 3')
+        tag1 = Tag.objects.create(user=self.user, name='Tag 1')
+        tag2 = Tag.objects.create(user=self.user, name='Tag 2')
+        # add tags to destinations1 and destination2
+        destination1.tags.add(tag1)
+        destination2.tags.add(tag2)
+
+        # filter destinations that have tag1 and tag2
+        res = self.client.get(
+            DESTINATION_URL,
+            {'tags': f'{tag1.id},{tag2.id}'}
+        )
+
+        serializer1 = DestinationSerializer(destination1)
+        serializer2 = DestinationSerializer(destination2)
+        serializer3 = DestinationSerializer(destination3)
+
+        self.assertIn(serializer1.data, res.data)
+        self.assertIn(serializer2.data, res.data)
+        self.assertNotIn(serializer3.data, res.data)
+
 
 class ImageTests(TestCase):
     '''Test uploading an image to a destination'''
