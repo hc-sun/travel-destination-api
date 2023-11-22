@@ -9,6 +9,24 @@ from drf_spectacular.utils import OpenApiParameter, \
     OpenApiTypes, extend_schema, extend_schema_view
 
 
+# extend auto-generated schema by drf-spectacular
+@extend_schema_view(
+    list=extend_schema(
+        description="List all destinations",
+        parameters=[
+            OpenApiParameter(
+                name='tags',
+                type=OpenApiTypes.STR,
+                description='Filter destinations by tags',
+            ),
+            OpenApiParameter(
+                name='features',
+                type=OpenApiTypes.STR,
+                description='Filter destinations by features',
+            ),
+        ]
+    ),
+)
 class DestinationViewSet(viewsets.ModelViewSet):
     """Manage destinations in the database"""
     serializer_class = serializers.DestinationDetailSerializer
@@ -46,6 +64,7 @@ class DestinationViewSet(viewsets.ModelViewSet):
         return (queryset.filter(user=self.request.user)
                         .order_by('-id')
                         .distinct())
+
     def get_serializer_class(self):
         """Return appropriate serializer class"""
         if self.action == 'list':
