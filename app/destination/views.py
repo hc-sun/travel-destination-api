@@ -17,12 +17,14 @@ from drf_spectacular.utils import OpenApiParameter, \
             OpenApiParameter(
                 name='tags',
                 type=OpenApiTypes.STR,
-                description='Filter destinations by tags',
+                description='Filter destinations by \
+                    comma seperated tag IDs',
             ),
             OpenApiParameter(
                 name='features',
                 type=OpenApiTypes.STR,
-                description='Filter destinations by features',
+                description='Filter destinations by \
+                    comma seperated feature IDs',
             ),
         ]
     ),
@@ -111,7 +113,8 @@ class DestinationViewSet(viewsets.ModelViewSet):
             OpenApiParameter(
                 name='is_tag_destination',
                 type=OpenApiTypes.INT, enum=[0, 1],
-                description='Filter tags that are assigned to a destination',
+                description='Is filter tags that \
+                    are assigned to a destination?',
             ),
         ]
     ),
@@ -152,8 +155,8 @@ class TagViewSet(viewsets.GenericViewSet,
             OpenApiParameter(
                 name='is_feature_destination',
                 type=OpenApiTypes.INT, enum=[0, 1],
-                description='Filter features that \
-                    are assigned to a destination',
+                description='Is filter features that \
+                    are assigned to a destination?',
             ),
         ]
     ),
