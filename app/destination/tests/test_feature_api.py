@@ -115,7 +115,7 @@ class PrivateFeatureApiTests(TestCase):
         """Test that no duplicated features are returned"""
         # create two features
         feature1 = Feature.objects.create(user=self.user, name='Test feature1')
-        feature2 = Feature.objects.create(user=self.user, name='Test feature2')
+        Feature.objects.create(user=self.user, name='Test feature2')
 
         destination1 = Destination.objects.create(
             user=self.user,

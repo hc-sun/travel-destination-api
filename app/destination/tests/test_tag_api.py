@@ -115,7 +115,7 @@ class PrivateTagApiTests(TestCase):
         """Test that no duplicate tags are returned"""
         # create two tags
         tag1 = Tag.objects.create(user=self.user, name='Test tag1')
-        tag2 = Tag.objects.create(user=self.user, name='Test tag2')
+        Tag.objects.create(user=self.user, name='Test tag2')
 
         destination1 = Destination.objects.create(
             user=self.user,
