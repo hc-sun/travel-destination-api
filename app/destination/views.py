@@ -145,6 +145,19 @@ class TagViewSet(viewsets.GenericViewSet,
                 .distinct())
 
 
+@extend_schema_view(
+    list=extend_schema(
+        description="List all features",
+        parameters=[
+            OpenApiParameter(
+                name='is_feature_destination',
+                type=OpenApiTypes.INT, enum=[0, 1],
+                description='Filter features that \
+                    are assigned to a destination',
+            ),
+        ]
+    ),
+)
 class FeatureViewSet(viewsets.GenericViewSet,
                      mixins.ListModelMixin,
                      mixins.UpdateModelMixin,
