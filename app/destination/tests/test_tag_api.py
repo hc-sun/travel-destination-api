@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
-from api.models import Tag
+from api.models import Tag, Destination
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -86,3 +86,58 @@ class PrivateTagApiTests(TestCase):
         # check that the tag is deleted
         tags = Tag.objects.all()
         self.assertEqual(len(tags), 0)
+
+    def test_filter_only_tags_associated_with_destinations(self):
+        """Test that only tags associated with destinations are returned"""
+        tag1 = Tag.objects.create(user=self.user, name='Test tag1')
+        tag2 = Tag.objects.create(user=self.user, name='Test tag2')
+        destination = Destination.objects.create(
+            user=self.user,
+            name='Test destination',
+            description='Test description',
+            country='Test country',
+            city='Test city',
+            rating=4.5,
+            )
+
+        # only add tag1 to the destination
+        destination.tags.add(tag1)
+
+        res = self.client.get(TAG_URL, {'is_tag_destination': 1})
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        serializer1 = TagSerializer(tag1)
+        serializer2 = TagSerializer(tag2)
+        self.assertIn(serializer1.data, res.data)
+        self.assertNotIn(serializer2.data, res.data)
+
+    def test_filter_no_duplicate_tags(self):
+        """Test that no duplicate tags are returned"""
+        # create two tags
+        tag1 = Tag.objects.create(user=self.user, name='Test tag1')
+        tag2 = Tag.objects.create(user=self.user, name='Test tag2')
+
+        destination1 = Destination.objects.create(
+            user=self.user,
+            name='Test destination1',
+            description='Test description',
+            country='Test country',
+            city='Test city',
+            rating=4.5,
+            )
+        destination2 = Destination.objects.create(
+            user=self.user,
+            name='Test destination2',
+            description='Test description',
+            country='Test country',
+            city='Test city',
+            rating=2.0,
+            )
+
+        # add tag1 to both destinations
+        destination1.tags.add(tag1)
+        destination2.tags.add(tag1)
+
+        res = self.client.get(TAG_URL, {'is_tag_destination': 1})
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 1)
