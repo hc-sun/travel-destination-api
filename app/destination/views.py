@@ -102,6 +102,20 @@ class DestinationViewSet(viewsets.ModelViewSet):
 
 # viewsets.GenericViewSet allows to use the mixins
 # which allows GET and PATCH
+# extend_schema_view decorator to extend
+# auto-generated schema by drf-spectacular
+@extend_schema_view(
+    list=extend_schema(
+        description="List all tags",
+        parameters=[
+            OpenApiParameter(
+                name='is_tag_destination',
+                type=OpenApiTypes.INT, enum=[0, 1],
+                description='Filter tags that are assigned to a destination',
+            ),
+        ]
+    ),
+)
 class TagViewSet(viewsets.GenericViewSet,
                  mixins.ListModelMixin,
                  mixins.UpdateModelMixin,
@@ -116,7 +130,19 @@ class TagViewSet(viewsets.GenericViewSet,
     # overwrite the get_queryset method
     def get_queryset(self):
         """Return objects for the current authenticated user only"""
-        return self.queryset.filter(user=self.request.user).order_by('-name')
+
+        # if is_tag_destination is provided in the query params
+        is_tag_destination = bool(int(
+            self.request.query_params.get('is_tag_destination', 0)))
+
+        queryset = self.queryset
+        # if True, filter tags that are assigned to a destination
+        if is_tag_destination:
+            queryset = queryset.filter(destination__isnull=False)
+
+        return (queryset.filter(user=self.request.user)
+                .order_by('-name')
+                .distinct())
 
 
 class FeatureViewSet(viewsets.GenericViewSet,
@@ -135,4 +161,14 @@ class FeatureViewSet(viewsets.GenericViewSet,
 
     def get_queryset(self):
         """Return objects for the current authenticated user only"""
-        return self.queryset.filter(user=self.request.user).order_by('-name')
+
+        is_feature_destination = bool(int(
+            self.request.query_params.get('is_feature_destination', 0)))
+
+        queryset = self.queryset
+        if is_feature_destination:
+            queryset = queryset.filter(destination__isnull=False)
+
+        return (queryset.filter(user=self.request.user)
+                .order_by('-name')
+                .distinct())
