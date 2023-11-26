@@ -5,6 +5,7 @@ ENV PYTHONUNBUFFERED 1
 
 COPY ./requirements.txt /tmp/requirements.txt
 COPY ./requirements-dev.txt /tmp/requirements-dev.txt
+COPY ./scripts /scripts
 COPY  ./app /app
 WORKDIR /app
 EXPOSE 8000
@@ -28,8 +29,11 @@ RUN python -m venv /py && \
     mkdir -p /app/static/media && \
     mkdir -p /app/static/static && \
     chown -R api-user:api-user /app && \
-    chmod -R 755 /app
+    chmod -R 755 /app && \
+    chmod -R +x /scripts
 
 ENV PATH="/py/bin:$PATH"
 
 USER api-user
+
+CMD ["/scripts/run.sh"]
