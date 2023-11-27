@@ -20,6 +20,7 @@ services:
       - DB_NAME=apidb
       - DB_USER=apiuser
       - DB_PASS=apipwd
+      - DEBUG=1
     depends_on:
       - db
 
