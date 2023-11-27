@@ -19,6 +19,6 @@ RUN mkdir -p /app/proxy/static && \
 
 VOLUME /app/proxy/static
 
-USER nginx-user
+USER root
 
 CMD ["/run.sh"]
