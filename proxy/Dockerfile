@@ -11,13 +11,13 @@ ENV APP_PORT=9090
 
 USER root
 
-RUN mkdir -p /app/static && \
-    chmod 755 /app/static && \
+RUN mkdir -p /app/proxy/static && \
+    chmod 755 /app/proxy/static && \
     touch /etc/nginx/conf.d/default.conf && \
     chown nginx:nginx /etc/nginx/conf.d/default.conf && \
     chmod +x /run.sh
 
-VOLUME /app/static
+VOLUME /app/proxy/static
 
 USER nginx-user
 

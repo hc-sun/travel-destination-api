@@ -2,7 +2,7 @@ server {
     listen ${LISTEN_PORT};
 
     location /static {
-        alias /app/static;
+        alias /app/proxy/static;
     }
 
     location / {
