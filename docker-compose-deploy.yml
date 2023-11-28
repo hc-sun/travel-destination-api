@@ -34,9 +34,10 @@ services:
     depends_on:
       - app
     ports:
-      - 80:8000
+      - 8443:8000
     volumes:
       - static-data:/app/proxy/static
+      - /etc/nginx/ssl:/etc/nginx/ssl
 
 volumes:
   postgres-data:
