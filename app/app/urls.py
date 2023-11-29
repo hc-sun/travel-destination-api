@@ -18,6 +18,7 @@ from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from django.conf import settings
 from django.conf.urls.static import static
+from api.views import HealthCheckView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -29,6 +30,7 @@ urlpatterns = [
     ),
     path('api/user/', include('user.urls')),
     path('api/destination/', include('destination.urls')),
+    path('api/health-check/', HealthCheckView.as_view(), name='health-check'),
 ]
 
 if settings.DEBUG:
